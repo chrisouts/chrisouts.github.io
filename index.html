@@ -1,9 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Chrisouts</title>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<title>ChrisOuts</title>
 </head>
 <body>
-<h1>Chris Outs</h1>
+
+<h3>Register</h3>
+<input placeholder="username" id="un" />
+<p style="color: red" id="un_error"></p>
+<input type="password" placeholder="password" id="pw" />
+<input type="password" placeholder="confirm password" id="cn" />
+<p style="color: red" id="cn_error"></p>
+<div class="h-captcha" data-sitekey="1d556d40-028a-44ec-b6a2-e2e2a940a955"></div>
+<button id="submRegister">Submit</button>
+<h1 id="Paithon"></h1>
+
+
+<script>
+const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
+
+var paithon = document.getElementById("Paithon");
+function sendJSON(url, data, method='POST') {
+	let xml = new XMLHttpRequest();
+    xml.open(method, url, false);
+    xml.setRequestHeader('Content-Type', 'application/json');
+    xml.send(JSON.stringify(data));
+    return xml.responseText;
+}
+
+const usernameEl = document.getElementById("un");
+const passEl = document.getElementById("pw");
+const confirmPass = document.getElementById("cn");
+const confirmPassErr = document.getElementById("cn_error");
+const usernameErr = document.getElementById("un_error");
+const registerBtn = document.getElementById("submRegister");
+
+const pwErrHandler = (e) => {
+	if (confirmPass.value != passEl.value) {
+    	confirmPassErr.innerText = 'Passwords don\'t match';
+    } else {
+    	confirmPassErr.innerText = '';
+    }
+};
+
+confirmPass.addEventListener("input", pwErrHandler);
+passEl.addEventListener("input", pwErrHandler);
+usernameEl.addEventListener("input", (e) => {
+	let val = usernameEl.value;
+    let forbidden_chars = ['\n', '\r', ' ', '\t', "'", '"'];
+    if (!(/^[\x00-\x7F]*$/.test(val))) {
+    	usernameErr.innerText = 'Username must be ASCII';
+    } else {
+    	for (let i = 0; i < val.length; i++) {
+        	if (forbidden_chars.includes(val[i])) {
+            	usernameErr.innerText = 'Username cannot include ' + JSON.stringify(val[i]);
+                return;
+            }
+        }
+        usernameErr.innerText = '';
+    }
+});
+
+registerBtn.addEventListener("click", (e) => {
+	if (usernameErr.innerText || confirmPassErr.innerText)
+    	return;
+    let captcha = document.getElementsByClassName("h-captcha")[0].getElementsByTagName("iframe")[0];
+    let username = usernameEl.value;
+    let password = passEl.value;
+    
+    if (!(username.length && password.length))
+    	return;
+    
+    //if (!captcha.getAttribute("data-hcaptcha-response").length)
+    //	return;
+    
+    let payload = {'username': username,'password': password, 'response': captcha.getAttribute("data-hcaptcha-response")};
+    console.log(payload);
+    let result = JSON.parse(sendJSON(URL_REGISTER, payload));
+});
+
+
+</script>
+
 </body>
 </html>
