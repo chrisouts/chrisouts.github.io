@@ -6,21 +6,21 @@
 </head>
 <body>
 
-<h3>Register</h3>
-<input placeholder="username" id="un" />
+<h1>Chris Outs</h1>
+<h3>registrera</h3>
+<input placeholder="namn" id="un" />
 <p style="color: red" id="un_error"></p>
-<input type="password" placeholder="password" id="pw" />
-<input type="password" placeholder="confirm password" id="cn" />
+<input type="password" placeholder="lösenord" id="pw" />
+<input type="password" placeholder="samma lösenord" id="cn" />
 <p style="color: red" id="cn_error"></p>
 <div class="h-captcha" data-sitekey="1d556d40-028a-44ec-b6a2-e2e2a940a955"></div>
-<button id="submRegister">Submit</button>
-<h1 id="Paithon"></h1>
+<button id="submRegister">registrera</button>
+<p style="color:red" id="Paithon"></h1>
 
 
 <script>
 const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
 
-var paithon = document.getElementById("Paithon");
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
     xml.open(method, url, false);
@@ -38,7 +38,7 @@ const registerBtn = document.getElementById("submRegister");
 
 const pwErrHandler = (e) => {
 	if (confirmPass.value != passEl.value) {
-    	confirmPassErr.innerText = 'Passwords don\'t match';
+    	confirmPassErr.innerText = 'skriva bara samma sak två gånger 💀';
     } else {
     	confirmPassErr.innerText = '';
     }
@@ -50,11 +50,11 @@ usernameEl.addEventListener("input", (e) => {
 	let val = usernameEl.value;
     let forbidden_chars = ['\n', '\r', ' ', '\t', "'", '"'];
     if (!(/^[\x00-\x7F]*$/.test(val))) {
-    	usernameErr.innerText = 'Username must be ASCII';
+    	usernameErr.innerText = 'Namn måste vara ASCII';
     } else {
     	for (let i = 0; i < val.length; i++) {
         	if (forbidden_chars.includes(val[i])) {
-            	usernameErr.innerText = 'Username cannot include ' + JSON.stringify(val[i]);
+            	usernameErr.innerText = 'Namn kan inte ha ' + JSON.stringify(val[i]);
                 return;
             }
         }
@@ -78,6 +78,12 @@ registerBtn.addEventListener("click", (e) => {
     let payload = {'username': username,'password': password, 'response': captcha.getAttribute("data-hcaptcha-response")};
     console.log(payload);
     let result = JSON.parse(sendJSON(URL_REGISTER, payload));
+    
+    if (result['error']) {
+    	Paithon.innerText = result['error'];
+        return;
+    }
+    
 });
 
 
