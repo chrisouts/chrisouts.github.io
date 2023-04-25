@@ -7,6 +7,15 @@
 <body>
 
 <h1>Chris Outs</h1>
+
+<div id="login_register">
+<h3>logga in</h3>
+<input placeholder="namn" id="lun" />
+<p style="color: red" id="lun_error"></p>
+<input type="password" placeholder="lösenord" id="lpw" />
+<br><br>
+<button id="submLogin">logga in</button><br><br>
+
 <h3>registrera</h3>
 <input placeholder="namn" id="un" />
 <p style="color: red" id="un_error"></p>
@@ -15,11 +24,17 @@
 <p style="color: red" id="cn_error"></p>
 <div class="h-captcha" data-sitekey="1d556d40-028a-44ec-b6a2-e2e2a940a955"></div>
 <button id="submRegister">registrera</button>
-<p style="color:red" id="Paithon"></h1>
+<p style="color:red" id="Paithon"></p>
+</div>
 
+<div id="christainer">
+<h3>Du är redan inloggad. Clicka <a href="/chat/">här</a> för att gå till chrisouts<br>
+<a onclick="logOut()" href="#">Logga ut</a></h3>
+</div>
 
 <script>
 const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
+const URL_LOGIN = 'https://chrisouts.stensjogren.repl.co/login';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -35,10 +50,18 @@ const confirmPass = document.getElementById("cn");
 const confirmPassErr = document.getElementById("cn_error");
 const usernameErr = document.getElementById("un_error");
 const registerBtn = document.getElementById("submRegister");
+const loginBtn = document.getElementById("submLogin");
+
+const lgUsernameEl = document.getElementById("lun");
+const lgPassEl = document.getElementById("lpw");
+
+const christainer = document.getElementById("christainer");
+const login_register = document.getElementById("login_register");
+const loginError = document.getElementById("lun_error");
 
 const pwErrHandler = (e) => {
 	if (confirmPass.value != passEl.value) {
-    	confirmPassErr.innerText = 'skriva bara samma sak två gånger 💀';
+    	confirmPassErr.innerText = 'skriv bara samma sak två gånger 💀';
     } else {
     	confirmPassErr.innerText = '';
     }
@@ -59,6 +82,61 @@ usernameEl.addEventListener("input", (e) => {
             }
         }
         usernameErr.innerText = '';
+    }
+});
+
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+loginBtn.addEventListener("click", (e) => {
+	let un = lgUsernameEl.value;
+    let pw = lgPassEl.value;
+    
+    if (!un) {
+    	loginError.innerText = 'heter du något eller 🤓';
+        return;
+    }
+    
+    if (!pw) {
+    	loginError.innerText = 'giv password 🥶🥶';
+        return;
+    }
+    
+    loginError.innerText = '';
+    
+    let payload = {
+    	username: un,
+        password: pw
+    };
+    
+    let result = JSON.parse(sendJSON(URL_LOGIN, payload));
+    if (result['error'])
+    	loginError.innerText = result['error'];
+    else {
+        setCookie("token", result['token'], 694);
+        setCookie("username", un);
+        token = result['token'];
+        window.location.reload();
     }
 });
 
@@ -83,9 +161,24 @@ registerBtn.addEventListener("click", (e) => {
     	Paithon.innerText = result['error'];
         return;
     }
-    
+    setCookie("token", result['token'], 694);
+    setCookie("username", username, 694);
+    token = result['token'];
+    window.location.reload();
 });
 
+function logOut() {
+	setCookie("token", "");
+    setCookie("username", "");
+    window.location.reload();
+}
+
+
+var token = getCookie("token");
+if (!token)
+	christainer.style.display = 'none';
+else
+	login_register.style.display = 'none';
 
 </script>
 
