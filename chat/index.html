@@ -9,8 +9,11 @@
 <p>This is a paragraph.</p>
 
 <script>
-const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
-const URL_LOGIN = 'https://chrisouts.stensjogren.repl.co/login';
+const root = 'https://chrisouts.stensjogren.repl.co/';
+const URL_REGISTER = root + 'register';
+const URL_LOGIN = root + 'login';
+const URL_GCONVOS = root + 'get_convos';
+const URL_CONVINFO = root + 'get_convo_info';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -49,6 +52,22 @@ var username = getCookie("username");
 if (!_token || !username)
 	window.location.href = '../';
 var token = btoa(username) + '.' + _token;
+
+var ChrisOuts = {
+    token: token,
+    username: username,
+    _token: _token,
+    convos: {
+    	getConvos: () => {
+    		return JSON.parse(sendJSON(URL_GCONVOS, {}));
+    	},
+        getConvoInfo: (convId) => {
+        	return JSON.parse(sendJSON(URL_CONVINFO, {id: convId}));
+        }
+    }
+};
+
+document.write(JSON.stringify(ChrisOuts.convos.getConvos()));
 
 </script>
 
