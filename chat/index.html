@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+</head>
+<body>
+
+<h1>This is a Heading</h1>
+<p>This is a paragraph.</p>
+
+<script>
+const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
+const URL_LOGIN = 'https://chrisouts.stensjogren.repl.co/login';
+
+function sendJSON(url, data, method='POST') {
+	let xml = new XMLHttpRequest();
+    xml.open(method, url, false);
+    xml.setRequestHeader('Content-Type', 'application/json');
+    xml.setRequestHeader('Authorization', token);
+    xml.send(JSON.stringify(data));
+    return xml.responseText;
+}
+
+function setCookie(cname, cvalue, exdays) {
+  const d = new Date();
+  d.setTime(d.getTime() + (exdays*24*60*60*1000));
+  let expires = "expires="+ d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+var _token = getCookie("token");
+var username = getCookie("username");
+if (!_token || !_username)
+	window.location.href = '../';
+var token = btoa(username) + _token;
+
+document.write(token);
+</script>
+
+</body>
+</html>
