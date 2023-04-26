@@ -46,11 +46,10 @@ function getCookie(cname) {
 
 var _token = getCookie("token");
 var username = getCookie("username");
-if (!_token || !_username)
+if (!_token || !username)
 	window.location.href = '../';
-var token = btoa(username) + _token;
+var token = btoa(username) + '.' + _token;
 
-document.write(token);
 </script>
 
 </body>
