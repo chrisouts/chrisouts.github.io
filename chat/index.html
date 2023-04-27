@@ -1,23 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
+<style>
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+</style>
 <title>Chris Outs</title>
 </head>
 <body>
 
-<h1>Jag jobbar på ett</h1>
+<h1>Jag jobbar p&#229; ett</h1>
 
-<div id="convosDisplay"></div>
-<div id="chatDisplay" style="display: none">
+<div id="convosDisplay" style=""></div>
+<div id="chatDisplay" style="display: none; width: 100%; height: 100%;">
 <a href="#" onclick="ChrisOuts.display.convos()">Tillbaka</a><br>
-<input id="chatMsg" style="position: sticky; bottom: 1px;">
+<input id="chatMsg">
 <div id="msgs">
 
 </div>
 </div>
 
+<script src="../root.js">
+</script>
 <script>
-const root = 'https://chrisouts.stensjogren.repl.co/';
 const URL_REGISTER = root + 'register';
 const URL_LOGIN = root + 'login';
 const URL_GCONVOS = root + 'get_convos';
@@ -25,6 +34,7 @@ const URL_CONVINFO = root + 'get_convo_info';
 const URL_GALLCONVOSINFO = root + 'get_all_convo_info';
 const URL_NEWCONVO = root + 'new_convo';
 const URL_SENDMESSAGE = root + 'message';
+const URL_SENDMSG_AND_GET = root + 'message_and_get_new';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -33,6 +43,19 @@ function sendJSON(url, data, method='POST') {
     xml.setRequestHeader('Authorization', token);
     xml.send(JSON.stringify(data));
     return xml.responseText;
+}
+
+function sendAsyncJSON(url, data, fn, method='POST') {
+    let xml = new XMLHttpRequest();
+    xml.open(method, url, true);
+    xml.setRequestHeader('Content-Type', 'application/json');
+    xml.setRequestHeader('Authorization', token);
+    xml.onreadystatechange = () => {
+        if (xml.readyState === 4) {
+            fn(JSON.parse(xml.responseText));
+        }
+    };
+    xml.send(JSON.stringify(data));
 }
 
 function setCookie(cname, cvalue, exdays) {
@@ -68,6 +91,7 @@ var ChrisOuts = {
     token: token,
     username: username,
     _token: _token,
+    selectedConvo: null,
     el: {
     	convos: document.getElementById("convosDisplay"),
         chat: document.getElementById("chatDisplay"),
@@ -78,8 +102,15 @@ var ChrisOuts = {
     	getConvos: () => {
     		return JSON.parse(sendJSON(URL_GALLCONVOSINFO, {}));
     	},
+
+        getConvosAsync: (then) => {
+            sendAsyncJSON(URL_GALLCONVOSINFO, {}, then);
+        },
+
         getConvoInfo: (convId) => {
-        	return JSON.parse(sendJSON(URL_CONVINFO, {id: convId}));
+        	let res = JSON.parse(sendJSON(URL_CONVINFO, {id: convId}));
+            res["id"] = convId;
+            return res;
         },
         cachedConvos: null,
         getCachedConvoById: (target) => {
@@ -95,40 +126,56 @@ var ChrisOuts = {
         },
         
         sendMsg: (id, msg) => {
-        	
+        	return JSON.parse(sendJSON(URL_SENDMESSAGE, {chat: id, content: msg}));
+        },
+
+        sendMsgAndGetNewConvo: (id, msg) => {
+            return JSON.parse(sendJSON(URL_SENDMSG_AND_GET, {chat: id, content: msg}))
+        },
+
+        sendMsgAndGetNewConvoAsync: (id, msg, then) => {
+            sendAsyncJSON(URL_SENDMSG_AND_GET, {chat: id, content: msg}, then);
         }
     },
     display: {
     	convos: () => {
-        	ChrisOuts.el.chat.style.display = 'none';
+            ChrisOuts.selectedConvo = null;
+            ChrisOuts.el.chat.style.display = 'none';
             ChrisOuts.el.convos.style.display = '';
-        	let convs = ChrisOuts.convos.getConvos();
-            ChrisOuts.convos.cachedConvos = convs;
             ChrisOuts.el.convos.innerHTML = '';
+            if (ChrisOuts.convos.cachedConvos != null)
+                ChrisOuts.display.displayConvos(ChrisOuts.convos.cachedConvos);
+            
+            ChrisOuts.convos.getConvosAsync((convs) => {
+                ChrisOuts.el.convos.innerHTML = '';
+                ChrisOuts.convos.cachedConvos = convs;
+                ChrisOuts.display.displayConvos(convs);
+            });
+        },
+
+        displayConvos: (convs) => {
             if (!convs)
-            	ChrisOuts.el.convos.innerText = '(inga chatter hittades)';
+                ChrisOuts.el.convos.innerText = '(inga chatter hittades)';
             else {
-            	for (let i = 0; i < convs.length; i++) {
-                	let conv = convs[i];
-                    if (!conv)
-                    	continue;
+                for (let i = 0; i < convs.length; i++) {
+                    let conv = JSON.parse(JSON.stringify(convs[i]));
                     conv['users'].splice(conv['users'].indexOf(username), 1);
                     let el = document.createElement("a");
                     el.href = '#';
                     el.setAttribute("cho-id", conv['id']);
                     el.onclick = (e) => {
-                    	let id = e.target.getAttribute('cho-id');
+                        let id = e.target.getAttribute('cho-id');
                         let conv = ChrisOuts.convos.getCachedConvoById(id);
                         ChrisOuts.display.chat(conv);
                     };
                     for (let u = 0; u < conv['users'].length; u++) {
-                    	let fmt = conv['users'][u];
+                        let fmt = conv['users'][u];
                         if (fmt.includes(','))
-                        	fmt = JSON.stringify(fmt);
-                    	el.innerText += fmt + ', ';
+                            fmt = JSON.stringify(fmt);
+                        el.innerText += fmt + ', ';
                     }
                     if (el.innerText.endsWith(', '))
-                    	el.innerText = el.innerText.slice(0, -2);
+                        el.innerText = el.innerText.slice(0, -2);
                     ChrisOuts.el.convos.appendChild(el);
                     ChrisOuts.el.convos.appendChild(document.createElement("br"));
                 }
@@ -139,19 +186,48 @@ var ChrisOuts = {
         	ChrisOuts.el.chat.style.display = '';
             ChrisOuts.el.convos.style.display = 'none';
             ChrisOuts.el.msgs.innerHTML = '';
+            ChrisOuts.selectedConvo = conv;
             
             let messages = conv['messages'];
             for (let i = 0; i < messages.length; i++) {
-            	let el = document.createElement("b");
-                el.innerText = messages[i]['author'] + ': ';
-                ChrisOuts.el.msgs.appendChild(el);
-                el = document.createElement("span");
-                el.innerText = messages[i]['content'] + '\n';
-                ChrisOuts.el.msgs.appendChild(el);
+                ChrisOuts.display.showMsg(messages[i].author, messages[i].content);
             }
+        },
+
+        showMsg: (author, cnt) => {
+            let el = document.createElement("span");
+            el.innerText = cnt + '\n';
+            ChrisOuts.el.msgs.insertBefore(el, ChrisOuts.el.msgs.firstChild);
+            el = document.createElement("b");
+            el.innerText = author + ': ';
+            ChrisOuts.el.msgs.insertBefore(el, ChrisOuts.el.msgs.firstChild);
         }
     }
 };
+
+ChrisOuts.el.chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        if (null == ChrisOuts.selectedConvo)
+            return;
+
+        let val = e.target.value.trim();
+        let convo = ChrisOuts.selectedConvo;
+        if (!val)
+            return;
+
+        ChrisOuts.display.showMsg(username, val);
+
+        e.target.value = "";
+        ChrisOuts.convos.sendMsgAndGetNewConvoAsync(convo.id, val, (result) => {
+            if (result.error) {
+                e.target.value = result.error;
+                return;
+            }
+            result.new_conversation.id = convo.id;
+            ChrisOuts.display.chat(result.new_conversation);
+        });
+    }
+});
 
 //ChrisOuts.convos.createConvo(["paterdelapablode3"]);
 ChrisOuts.display.convos();
