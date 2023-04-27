@@ -9,7 +9,8 @@
 
 <div id="convosDisplay"></div>
 <div id="chatDisplay" style="display: none">
-<input id="chatMsg"></input>
+<a href="#" onclick="ChrisOuts.display.convos()">Tillbaka</a><br>
+<input id="chatMsg">
 </div>
 
 <script>
@@ -19,6 +20,7 @@ const URL_LOGIN = root + 'login';
 const URL_GCONVOS = root + 'get_convos';
 const URL_CONVINFO = root + 'get_convo_info';
 const URL_GALLCONVOSINFO = root + 'get_all_convo_info';
+const URL_NEWCONVO = root + 'new_convo';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -63,7 +65,9 @@ var ChrisOuts = {
     username: username,
     _token: _token,
     el: {
-    	convos: document.getElementById("convosDisplay")
+    	convos: document.getElementById("convosDisplay"),
+        chat: document.getElementById("chatDisplay"),
+        chatInput: document.getElementById("chatMsg")
     },
     convos: {
     	getConvos: () => {
@@ -79,12 +83,19 @@ var ChrisOuts = {
                 if (el["id"] == target)
                 	return el;
             }
+        },
+        createConvo: (users) => {
+        	users.push(username);
+            return JSON.parse(sendJSON(URL_NEWCONVO, {users: users}))['id'];
         }
     },
     display: {
     	convos: () => {
+        	ChrisOuts.el.chat.style.display = 'none';
+            ChrisOuts.el.convos.style.display = '';
         	let convs = ChrisOuts.convos.getConvos();
-            ChrisOuts.convos.cachedConvos = convos;
+            ChrisOuts.convos.cachedConvos = convs;
+            ChrisOuts.el.convos.innerHTML = '';
             if (!convs)
             	ChrisOuts.el.convos.innerText = '(inga chatter hittades)';
             else {
@@ -110,16 +121,19 @@ var ChrisOuts = {
                     if (el.innerText.endsWith(', '))
                     	el.innerText = el.innerText.slice(0, -2);
                     ChrisOuts.el.convos.appendChild(el);
+                    ChrisOuts.el.convos.appendChild(document.createElement("br"));
                 }
             }
         },
         
         chat: (conv) => {
-        	
+        	ChrisOuts.el.chat.style.display = '';
+            ChrisOuts.el.convos.style.display = 'none';
         }
     }
 };
 
+//ChrisOuts.convos.createConvo(["paterdelapablode3"]);
 ChrisOuts.display.convos();
 
 </script>
