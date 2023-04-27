@@ -2,7 +2,9 @@
 <html>
 <head>
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script src="root.js"></script>
 <title>ChrisOuts</title>
+<meta charset="UTF-8">
 </head>
 <body>
 
@@ -12,15 +14,15 @@
 <h3>logga in</h3>
 <input placeholder="namn" id="lun" />
 <p style="color: red" id="lun_error"></p>
-<input type="password" placeholder="lösenord" id="lpw" />
+<input type="password" placeholder="l&#246;senord" id="lpw" />
 <br><br>
 <button id="submLogin">logga in</button><br><br>
 
 <h3>registrera</h3>
 <input placeholder="namn" id="un" />
 <p style="color: red" id="un_error"></p>
-<input type="password" placeholder="lösenord" id="pw" />
-<input type="password" placeholder="samma lösenord" id="cn" />
+<input type="password" placeholder="l&#246;senord" id="pw" />
+<input type="password" placeholder="samma l&#246;senord" id="cn" />
 <p style="color: red" id="cn_error"></p>
 <div class="h-captcha" data-sitekey="1d556d40-028a-44ec-b6a2-e2e2a940a955"></div>
 <button id="submRegister">registrera</button>
@@ -28,13 +30,13 @@
 </div>
 
 <div id="christainer">
-<h3>Du är redan inloggad. Clicka <a href="/chat/">här</a> för att gå till chrisouts<br>
+<h3>Du &#228;r redan inloggad. Clicka <a href="/chat/">h&#228;r</a> f&#246;r att g&#229; till chrisouts<br>
 <a onclick="logOut()" href="#">Logga ut</a></h3>
 </div>
 
 <script>
-const URL_REGISTER = 'https://chrisouts.stensjogren.repl.co/register';
-const URL_LOGIN = 'https://chrisouts.stensjogren.repl.co/login';
+const URL_REGISTER = root + 'register';
+const URL_LOGIN = root + 'login';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -61,7 +63,7 @@ const loginError = document.getElementById("lun_error");
 
 const pwErrHandler = (e) => {
 	if (confirmPass.value != passEl.value) {
-    	confirmPassErr.innerText = 'skriv bara samma sak två gånger 💀';
+    	confirmPassErr.innerHTML = 'skriv bara samma sak tv&#229; g&#229;nger 💀';
     } else {
     	confirmPassErr.innerText = '';
     }
@@ -73,7 +75,7 @@ usernameEl.addEventListener("input", (e) => {
 	let val = usernameEl.value;
     let forbidden_chars = ['\n', '\r', ' ', '\t', "'", '"'];
     if (!(/^[\x00-\x7F]*$/.test(val))) {
-    	usernameErr.innerText = 'Namn måste vara ASCII';
+    	usernameErr.innerHTML = 'Namn m&#229;ste vara ASCII';
     } else {
     	for (let i = 0; i < val.length; i++) {
         	if (forbidden_chars.includes(val[i])) {
@@ -113,7 +115,7 @@ loginBtn.addEventListener("click", (e) => {
     let pw = lgPassEl.value;
     
     if (!un) {
-    	loginError.innerText = 'heter du något eller 🤓';
+    	loginError.innerHTML = 'heter du n&#229;got eller 🤓';
         return;
     }
     
