@@ -10,7 +10,10 @@
 <div id="convosDisplay"></div>
 <div id="chatDisplay" style="display: none">
 <a href="#" onclick="ChrisOuts.display.convos()">Tillbaka</a><br>
-<input id="chatMsg">
+<input id="chatMsg" style="position: sticky; bottom: 1px;">
+<div id="msgs">
+
+</div>
 </div>
 
 <script>
@@ -21,6 +24,7 @@ const URL_GCONVOS = root + 'get_convos';
 const URL_CONVINFO = root + 'get_convo_info';
 const URL_GALLCONVOSINFO = root + 'get_all_convo_info';
 const URL_NEWCONVO = root + 'new_convo';
+const URL_SENDMESSAGE = root + 'message';
 
 function sendJSON(url, data, method='POST') {
 	let xml = new XMLHttpRequest();
@@ -67,7 +71,8 @@ var ChrisOuts = {
     el: {
     	convos: document.getElementById("convosDisplay"),
         chat: document.getElementById("chatDisplay"),
-        chatInput: document.getElementById("chatMsg")
+        chatInput: document.getElementById("chatMsg"),
+        msgs: document.getElementById("msgs")
     },
     convos: {
     	getConvos: () => {
@@ -87,6 +92,10 @@ var ChrisOuts = {
         createConvo: (users) => {
         	users.push(username);
             return JSON.parse(sendJSON(URL_NEWCONVO, {users: users}))['id'];
+        },
+        
+        sendMsg: (id, msg) => {
+        	
         }
     },
     display: {
@@ -129,8 +138,17 @@ var ChrisOuts = {
         chat: (conv) => {
         	ChrisOuts.el.chat.style.display = '';
             ChrisOuts.el.convos.style.display = 'none';
-            ChrisOuts.el.chat.innerHTML = '';
+            ChrisOuts.el.msgs.innerHTML = '';
             
+            let messages = conv['messages'];
+            for (let i = 0; i < messages.length; i++) {
+            	let el = document.createElement("b");
+                el.innerText = messages[i]['author'] + ': ';
+                ChrisOuts.el.msgs.appendChild(el);
+                el = document.createElement("span");
+                el.innerText = messages[i]['content'] + '\n';
+                ChrisOuts.el.msgs.appendChild(el);
+            }
         }
     }
 };
