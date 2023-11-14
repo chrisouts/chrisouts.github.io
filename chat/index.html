@@ -25,8 +25,7 @@ html, body {
 </div>
 </div>
 
-<script src="../root.js">
-</script>
+<script src="../root.js"></script>
 <script>
 const URL_REGISTER = root + 'register';
 const URL_LOGIN = root + 'login';
@@ -237,7 +236,7 @@ let searchMan = new URLSearchParams(window.location.search);
 let el = true;
 if (searchMan.has('chat')) {
 	let chat = searchMan.get('chat');
-    let conv = ChrisOuts.convos.getCachedConvoById(chat);
+    let conv = ChrisOuts.convos.getConvoInfo(chat);
     if (conv) {
     	el = false;
     	ChrisOuts.display.chat(conv);
