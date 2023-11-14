@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -187,6 +188,7 @@ var ChrisOuts = {
             ChrisOuts.el.convos.style.display = 'none';
             ChrisOuts.el.msgs.innerHTML = '';
             ChrisOuts.selectedConvo = conv;
+            window.history.pushState({"chat": conv["id"]}, "Chatt", "/chat?chat=" + conv["id"]);
             
             let messages = conv['messages'];
             for (let i = 0; i < messages.length; i++) {
@@ -230,7 +232,20 @@ ChrisOuts.el.chatInput.addEventListener("keydown", (e) => {
 });
 
 //ChrisOuts.convos.createConvo(["paterdelapablode3"]);
-ChrisOuts.display.convos();
+
+let searchMan = new URLSearchParams(window.location.search);
+let el = true;
+if (searchMan.has('chat')) {
+	let chat = searchMan.get('chat');
+    let conv = ChrisOuts.convos.getCachedConvoById(chat);
+    if (conv) {
+    	el = false;
+    	ChrisOuts.display.chat(conv);
+    }
+}
+
+if (el)
+	ChrisOuts.display.convos();
 
 </script>
 
