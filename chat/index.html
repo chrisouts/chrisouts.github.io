@@ -165,7 +165,7 @@ var ChrisOuts = {
                     el.setAttribute("cho-id", conv['id']);
                     el.onclick = (e) => {
                         let id = e.target.getAttribute('cho-id');
-                        let conv = ChrisOuts.convos.getCachedConvoById(id);
+                        let conv = ChrisOuts.convos.getConvoInfo(id);
                         ChrisOuts.display.chat(conv);
                     };
                     for (let u = 0; u < conv['users'].length; u++) {
